@@ -32,14 +32,14 @@ app.post("/webhook", async (req, res) => {
 
   if (body.object && body.entry && body.entry[0].changes && body.entry[0].changes[0].value.messages) {
     const phone_number_id = body.entry[0].changes[0].value.metadata.phone_number_id;
-    const from = body.entry[0].changes[0].value.messages[0].from; // user's phone number
+    const from = body.entry[0].changes[0].value.messages[0].from;
     const msg_body = body.entry[0].changes[0].value.messages[0].text?.body;
 
-    console.log(Incoming message from ${from}: ${msg_body});
+    console.log(`Incoming message from ${from}: ${msg_body}`);
 
     // Send message to Dialogflow
     const dialogflowResponse = await axios.post(
-      https://dialogflow.googleapis.com/v2/projects/${process.env.DF_PROJECT_ID}/agent/sessions/${from}:detectIntent,
+      `https://dialogflow.googleapis.com/v2/projects/${process.env.DF_PROJECT_ID}/agent/sessions/${from}:detectIntent`,
       {
         queryInput: {
           text: {
@@ -50,7 +50,7 @@ app.post("/webhook", async (req, res) => {
       },
       {
         headers: {
-          Authorization: Bearer ${process.env.DF_ACCESS_TOKEN},
+          Authorization: `Bearer ${process.env.DF_ACCESS_TOKEN}`,
         },
       }
     );
@@ -59,7 +59,7 @@ app.post("/webhook", async (req, res) => {
 
     // Send reply back to WhatsApp user
     await axios.post(
-      https://graph.facebook.com/v19.0/${phone_number_id}/messages,
+      `https://graph.facebook.com/v19.0/${phone_number_id}/messages`,
       {
         messaging_product: "whatsapp",
         to: from,
@@ -67,7 +67,7 @@ app.post("/webhook", async (req, res) => {
       },
       {
         headers: {
-          Authorization: Bearer ${process.env.WHATSAPP_TOKEN},
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
           "Content-Type": "application/json",
         },
       }
@@ -78,5 +78,5 @@ app.post("/webhook", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(Webhook server running on port ${PORT});
+  console.log(`Webhook server running on port ${PORT}`);
 });
